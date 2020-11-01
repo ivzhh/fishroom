@@ -137,6 +137,8 @@ class IRCHandle(BaseBotInstance):
         color_avail = (2, 3, 4, 5, 6, 7, 10, 12, 13)
         color = None
 
+        is_single_user = "single_user" in config and config["single_user"]
+
         if sender:
             # color defined at http://www.mirc.com/colors.html
             # background_num = sum([ord(i) for i in sender]) % 16
@@ -153,7 +155,7 @@ class IRCHandle(BaseBotInstance):
             reply_quote = "「Re {reply_to}: {reply_text}」".format(
                 reply_text=reply_text, reply_to=reply_to)
 
-        msg = self.rich_message(content, sender=sender, color=color,
+        msg = self.rich_message(content, sender=None if is_single_user else sender, color=color,
                                 reply_quote=reply_quote)
         msg = self.formatRichText(msg)
         try:

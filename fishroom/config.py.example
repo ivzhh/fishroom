@@ -1,5 +1,8 @@
 config = {
     "debug": True,
+    "single_user": True,
+    "tg_text_only": True,
+    "tg_bot_privacy_safeword": "/isay ",
     "timezone": "Asia/Shanghai",
     "baseurl": "http://fishroom.example.com",  # do not end with "/"
     "name": "teleboto",

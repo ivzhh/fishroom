@@ -187,6 +187,12 @@ class Telegram(BaseBotInstance):
             if isinstance(sticker_url_store, BaseStickerURLStore) \
             else BaseStickerURLStore()
 
+        self.is_text_only = "tg_text_only" in config and config["tg_text_only"]
+        self.safeword = ""
+        if "tg_bot_privacy_safeword" in config and isinstance(config["tg_bot_privacy_safeword"], str) and re.search('/\w+\s+', config["tg_bot_privacy_safeword"]):
+            self.safeword = config["tg_bot_privacy_safeword"]
+            logger.debug("safeword is: %s" % (self.safeword,))
+
     def _must_post(self, api, data=None, json=None, timeout=10, **kwargs):
         if data is not None:
             kwargs['data'] = data
@@ -355,6 +361,10 @@ class Telegram(BaseBotInstance):
                 if self.is_cmd(jmsg["text"]) \
                 else MessageType.Text
 
+            if self.safeword and mtype == MessageType.Command and content.startswith(self.safeword):
+                mtype = MessageType.Text
+                content = content.lstrip(self.safeword)
+
         elif "photo" in jmsg:
             file_id = jmsg["photo"][-1]["file_id"]
             url, err = self.upload_photo(file_id)
@@ -445,7 +455,12 @@ class Telegram(BaseBotInstance):
             mtype = MessageType.Event
 
         else:
+            if self.is_text_only:
+                return None
             content = "(unsupported message type)"
+
+        if self.is_text_only and mtype not in (MessageType.Text, MessageType.Command) :
+            return None
 
         fwd_from = None
         if "forward_from" in jmsg:
