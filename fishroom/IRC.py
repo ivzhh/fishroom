@@ -68,8 +68,11 @@ class IRCHandle(BaseBotInstance):
 
     def on_welcome(self, conn, event):
         for c in self.channels:
+            logger.debug("checking is_channel: %s" % (c, ))
             if irc.client.is_channel(c):
+                logger.debug("trying to join: %s" % (c, ))
                 conn.join(c)
+                time.sleep(0.5)
 
     def on_join(self, conn, event):
         logger.info(event.source + ' ' + event.target)
