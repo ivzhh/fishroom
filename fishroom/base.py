@@ -2,9 +2,11 @@
 import re
 from typing import Tuple
 from .models import Message, MessageType, Color
-from .helpers import download_file
+from .helpers import (download_file, get_logger)
 from .command import LEADING_CHARS, parse_command
 
+
+logger = get_logger("base")
 
 class BaseBotInstance(object):
 
@@ -68,6 +70,10 @@ class BaseBotInstance(object):
 
         if self.SupportMultiline:
             sender = None if msg.botmsg else msg.sender
+
+            if getattr(self, "gen_notification", None):
+                msg.content = self.gen_notification.sub(r'@\1', msg.content)
+
             self.send_msg(
                 target, msg.content, sender=sender, rich_text=msg.rich_text,
                 raw=msg, **msg.opt,
@@ -84,6 +90,10 @@ class BaseBotInstance(object):
 
         for i, line in enumerate(lines):
             sender = None if msg.botmsg else msg.sender
+
+            if getattr(self, "gen_notification", None):
+                msg.content = self.gen_notification.sub(r'@\1', msg.content)
+
             self.send_msg(
                 target, content=line, sender=sender, rich_text=msg.rich_text,
                 first=(i == 0), raw=msg, **msg.opt,

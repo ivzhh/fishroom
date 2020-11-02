@@ -193,6 +193,14 @@ class Telegram(BaseBotInstance):
             self.safeword = config["tg_bot_privacy_safeword"]
             logger.debug("safeword is: %s" % (self.safeword,))
 
+        self.is_single_user = "single_user" in config and config["single_user"]
+
+        if self.is_single_user and "irc" in config and "notifications" in config["irc"]:
+            self.notifications = config["irc"]["notifications"]
+            if self.notifications:
+                pat = r'\W?('+ ("|".join(self.notifications)) + r')\W?'
+                self.gen_notification = re.compile(pat)
+
     def _must_post(self, api, data=None, json=None, timeout=10, **kwargs):
         if data is not None:
             kwargs['data'] = data
