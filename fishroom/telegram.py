@@ -353,6 +353,11 @@ class Telegram(BaseBotInstance):
         ts = jmsg["date"]
         media_url = ""
 
+        if chat_title.startswith('irc_'):
+            config_chat_title = chat_title.lstrip('irc_')
+            if config_chat_title not in config['bindings']:
+                logger.info("new chat %s %d" % (config_chat_title, chat_id))
+
         mtype = MessageType.Text
 
         if "text" in jmsg:
@@ -553,7 +558,7 @@ class Telegram(BaseBotInstance):
                     continue
 
                 telemsg = self.parse_jmsg(jmsg)
-                user = telemsg.user
+                user = getattr(telemsg, 'user', None)
 
                 if telemsg is None or user.id in id_blacklist:
                     continue
